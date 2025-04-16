@@ -1,0 +1,27 @@
+
+services:
+  sinapsis-tracker:
+    extends:
+      service: sinapsis-trackers-main
+      file: compose.yaml
+    container_name: sinapsis-tracker
+    volumes:
+      - "../packages/sinapsis_cotracker/src/sinapsis_cotracker/configs:/app/sinapsis_cotracker/configs/"
+      - "../packages/sinapsis_supervision/src/sinapsis_supervision/configs:/app/sinapsis_supervision/configs/"
+      - "../webapps:/app/webapps"
+    network_mode: "host"
+  sinapsis-cotracker-gradio:
+    extends:
+      service: sinapsis-tracker
+    container_name: sinapsis-cotracker-gradio
+    environment:
+      AGENT_CONFIG_PATH: /app/sinapsis_cotracker/configs/cotracker_online.yml
+    command: python3 webapps/tracking_demo.py
+  sinapsis-supervision-gradio:
+    extends:
+      service: sinapsis-tracker
+    container_name: sinapsis-supervision-gradio
+    environment:
+      AGENT_CONFIG_PATH: ${AGENT_CONFIG_PATH:-/app/sinapsis_supervision/configs/bytetrack_ultralytics_demo.yml}
+      DFINE_CONFIG_DOWNLOAD: ${DFINE_CONFIG_DOWNLOAD:-false}
+    command: python3 webapps/tracking_demo.py

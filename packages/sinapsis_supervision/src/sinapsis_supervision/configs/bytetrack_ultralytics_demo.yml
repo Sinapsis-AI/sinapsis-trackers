@@ -1,0 +1,51 @@
+agent:
+  name: bytetrack_agent
+  description: Agent to perform Bytrack inference using Ultralytics YOLO model as detector. 
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name : VideoReaderCV2
+    class_name: VideoReaderCV2
+    template_input: InputTemplate
+    attributes:
+      video_file_path : "artifacts/palace.mp4"
+      batch_size: -1
+
+  - template_name: UltralyticsPredict
+    class_name: UltralyticsPredict
+    template_input: VideoReaderCV2
+    attributes:
+      model_class: YOLO
+      model: yolo11n.pt
+      task: detect
+      prediction_params:
+        conf: 0.7
+        iou: 0.8
+
+
+  - template_name: ByteTrack
+    class_name: ByteTrack
+    template_input: UltralyticsPredict
+    attributes:
+      track_activation_threshold: 0.2
+      frame_rate: 30
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: ByteTrack
+    attributes:
+      overwrite: true
+      draw_classification_label: false
+      randomized_color: false
+
+  - template_name: VideoWriterCV2
+    class_name: VideoWriterCV2
+    template_input: BBoxDrawer
+    attributes:
+      destination_path: "artifacts/result.mp4"
+      height: -1
+      width: -1
+      fps: 30

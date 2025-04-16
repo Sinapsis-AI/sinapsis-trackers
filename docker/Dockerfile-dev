@@ -1,0 +1,10 @@
+FROM sinapsis-nvidia:base
+
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+COPY . /app/
+WORKDIR /app
+RUN uv sync --frozen --extra cotracker
+RUN uv build && uv build --all-packages
+RUN uv pip install /app/dist/sinapsis_cotracker-0.1.0-py3-none-any.whl[all]
+RUN uv pip install /app/dist/sinapsis_supervision-0.1.0-py3-none-any.whl[all]
+RUN uv pip install /app/dist/sinapsis_trackers-0.1.0-py3-none-any.whl[all]

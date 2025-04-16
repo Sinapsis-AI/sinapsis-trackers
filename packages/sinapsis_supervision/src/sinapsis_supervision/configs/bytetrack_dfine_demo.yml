@@ -1,0 +1,51 @@
+agent:
+  name: bytetrack_agent
+  description: Agent to perform Bytrack inference using DFINE model as detector. 
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name : VideoReaderCV2
+    class_name: VideoReaderCV2
+    template_input: InputTemplate
+    attributes:
+      video_file_path : "artifacts/apple.mp4"
+      batch_size: -1
+
+  - template_name: DFINEInference
+    class_name: DFINEInference
+    template_input: VideoReaderCV2
+    attributes:
+      threshold: 0.5
+      config_file: artifacts/configs/dfine/dfine_hgnetv2_n_coco.yml
+      device: cuda
+      pretrained_model:
+        size: n
+        variant: coco
+
+
+  - template_name: ByteTrack
+    class_name: ByteTrack
+    template_input: DFINEInference
+    attributes:
+      track_activation_threshold: 0.2
+      frame_rate: 30
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: ByteTrack
+    attributes:
+      overwrite: true
+      draw_classification_label: false
+      randomized_color: false
+
+  - template_name: VideoWriterCV2
+    class_name: VideoWriterCV2
+    template_input: BBoxDrawer
+    attributes:
+      destination_path: "artifacts/result.mp4"
+      height: -1
+      width: -1
+      fps: 30

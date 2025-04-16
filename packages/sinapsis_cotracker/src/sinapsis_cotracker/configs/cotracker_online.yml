@@ -1,0 +1,43 @@
+agent:
+  name: cotracker_agent
+  description: > 
+    "Agent to load video from local dir, perform CoTrackerOnline inference
+    and store visualization results in destination path."
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name : VideoReaderCV2
+    class_name: VideoReaderCV2
+    template_input: InputTemplate
+    attributes:
+      video_file_path : "artifacts/apple.mp4"
+      batch_size: 32
+
+  - template_name: CoTrackerOnline
+    class_name: CoTrackerOnline
+    template_input: VideoReaderCV2
+    attributes:
+      model_variant: baseline
+      device: cuda
+      grid_size: 15
+
+  - template_name: CoTrackerVisualizer
+    class_name: CoTrackerVisualizer
+    template_input: CoTrackerOnline
+    attributes:
+      device : cuda
+      linewidth: 3
+      overwrite: true
+      generic_key_field: CoTrackerOnline
+
+  - template_name: VideoWriterCV2
+    class_name: VideoWriterCV2
+    template_input: CoTrackerVisualizer
+    attributes:
+      destination_path: "artifacts/result.mp4"
+      height: -1
+      width: -1
+      fps: 30
