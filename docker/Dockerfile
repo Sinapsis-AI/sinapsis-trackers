@@ -1,6 +1,6 @@
 FROM sinapsis-nvidia:base
 
-RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists/*
 COPY . /app/
 WORKDIR /app
 RUN uv sync --frozen  --extra cotracker
