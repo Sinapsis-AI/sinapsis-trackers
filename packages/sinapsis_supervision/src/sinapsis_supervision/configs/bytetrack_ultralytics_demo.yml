@@ -1,6 +1,6 @@
 agent:
   name: bytetrack_agent
-  description: Agent to perform Bytrack inference using Ultralytics YOLO model as detector. 
+  description: Agent to perform Bytrack inference using Ultralytics YOLO model as detector.
 
 templates:
   - template_name: InputTemplate

@@ -5,7 +5,8 @@ import numpy as np
 import torch
 from cotracker.utils.visualizer import Visualizer
 from sinapsis_core.data_containers.data_packet import DataContainer, ImageColor, ImagePacket
-from sinapsis_core.template_base import Template, TemplateAttributeType
+from sinapsis_core.template_base import Template
+from sinapsis_core.template_base.base_models import TemplateAttributeType
 
 from sinapsis_cotracker.templates.co_tracker_base import CoTrackerAttributes, CoTrackerBase, InferenceResults
 
@@ -121,7 +122,6 @@ class CoTrackerVisualizer(Template):
         if self.attributes.overwrite:
             container.images = []
 
-        
         frames = self._visualize_results(torch_video, tracker_results)
         container.images.extend(
             [ImagePacket(content=frame, source=f"{i}", color_space=color_space) for i, frame in enumerate(frames)]

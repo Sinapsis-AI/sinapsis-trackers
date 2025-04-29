@@ -5,7 +5,7 @@ import numpy as np
 import torch
 from cotracker.predictor import CoTrackerPredictor
 from sinapsis_core.data_containers.data_packet import DataContainer, ImagePacket
-from sinapsis_core.template_base import TemplateAttributeType
+from sinapsis_core.template_base.base_models import TemplateAttributeType
 
 from sinapsis_cotracker.templates.co_tracker_base import CoTrackerBase
 

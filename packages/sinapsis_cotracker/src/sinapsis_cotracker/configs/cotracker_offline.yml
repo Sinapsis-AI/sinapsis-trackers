@@ -1,6 +1,6 @@
 agent:
   name: cotracker_agent
-  description: > 
+  description: >
     "Agent to load video from local dir, perform CoTrackerOffline inference
     and store visualization results in destination path."
 
@@ -33,7 +33,7 @@ templates:
       linewidth: 3
       overwrite: true
       generic_key_field: CoTrackerOffline
-            
+
   - template_name: VideoWriterCV2
     class_name: VideoWriterCV2
     template_input: CoTrackerVisualizer

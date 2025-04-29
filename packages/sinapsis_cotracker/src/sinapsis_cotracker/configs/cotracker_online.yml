@@ -1,6 +1,6 @@
 agent:
   name: cotracker_agent
-  description: > 
+  description: >
     "Agent to load video from local dir, perform CoTrackerOnline inference
     and store visualization results in destination path."
 
