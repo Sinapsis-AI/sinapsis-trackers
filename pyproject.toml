@@ -35,7 +35,6 @@ exclude = ["packages/*.egg-info"]
 
 [tool.setuptools]
 packages = { find = { where = ["packages"] } }
-license-files = []
 
 [tool.ruff]
 lint.select = [
