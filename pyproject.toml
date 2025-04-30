@@ -1,6 +1,6 @@
 [project]
 name = "sinapsis-trackers"
-version = "0.1.2"
+version = "0.1.3"
 description = "Package for multi-object tracking using advanced algorithms and models."
 authors = [{ name = "SinapsisAI", email = "dev@sinapsis.tech" }]
 readme = "README.md"
