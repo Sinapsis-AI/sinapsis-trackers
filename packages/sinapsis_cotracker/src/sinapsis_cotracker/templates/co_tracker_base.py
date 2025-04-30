@@ -8,7 +8,7 @@ import torch
 from pydantic import BaseModel, ConfigDict
 from sinapsis_core.data_containers.data_packet import DataContainer
 from sinapsis_core.template_base import Template
-from sinapsis_core.template_base.base_models import TemplateAttributes, TemplateAttributeType
+from sinapsis_core.template_base.base_models import TemplateAttributes, TemplateAttributeType, UIPropertiesMetadata, OutputTypes
 from sinapsis_core.utils.env_var_keys import SINAPSIS_CACHE_DIR
 
 from sinapsis_cotracker.helpers.file_downloader import download_file
@@ -38,6 +38,7 @@ class CoTrackerBase(Template):
     """Base class for Co-tracker templates."""
 
     _MODEL_TYPE: str | None = None
+    UIProperties = UIPropertiesMetadata(category="CoTracker", output_type=OutputTypes.IMAGE)
 
     class AttributesBaseModel(CoTrackerAttributes):
         """Configuration attributes for the CoTrackerBase.

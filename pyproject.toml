@@ -1,10 +1,10 @@
 [project]
 name = "sinapsis-trackers"
-version = "0.1.1"
+version = "0.1.2"
 description = "Package for multi-object tracking using advanced algorithms and models."
 authors = [{ name = "SinapsisAI", email = "dev@sinapsis.tech" }]
 readme = "README.md"
-license = { file = "LICENSE" }
+license-files =["LICENSE"]
 requires-python = ">=3.10"
 dependencies = [
     "sinapsis>=0.2.2",
