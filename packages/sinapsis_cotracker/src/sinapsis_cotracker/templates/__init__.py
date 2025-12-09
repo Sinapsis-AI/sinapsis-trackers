@@ -5,6 +5,7 @@ from typing import Callable
 _root_lib_path = "sinapsis_cotracker.templates"
 
 _template_lookup = {
+    "CoTrackerOfflineLarge": f"{_root_lib_path}.co_tracker_offline_large",
     "CoTrackerOffline": f"{_root_lib_path}.co_tracker_offline",
     "CoTrackerOnline": f"{_root_lib_path}.co_tracker_online",
     "CoTrackerVisualizer": f"{_root_lib_path}.co_tracker_visualizer",
