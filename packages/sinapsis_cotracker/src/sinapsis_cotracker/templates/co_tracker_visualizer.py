@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import gc
 from typing import Literal
 
 import numpy as np
@@ -8,7 +9,7 @@ from sinapsis_core.data_containers.data_packet import DataContainer, ImageColor,
 from sinapsis_core.template_base import Template
 from sinapsis_core.template_base.base_models import TemplateAttributeType
 
-from sinapsis_cotracker.templates.co_tracker_base import CoTrackerAttributes, CoTrackerBase, InferenceResults
+from sinapsis_cotracker.templates.co_tracker_base import CoTrackerAttributes, CoTrackerBase
 
 
 class CoTrackerVisualizer(Template):
@@ -64,6 +65,13 @@ class CoTrackerVisualizer(Template):
 
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
+        self.initialize()
+
+    def initialize(self) -> None:
+        """Initializes the template's common state for creation or reset.
+        This method is called by both `__init__` and `reset_state` to ensure
+        a consistent state. Can be overriden by subclasses for specific behaviour.
+        """
         self.visualizer = Visualizer(
             pad_value=self.attributes.pad_value,
             mode=self.attributes.mode,
@@ -71,7 +79,7 @@ class CoTrackerVisualizer(Template):
             show_first_frame=0,
         )
 
-    def _visualize_results(self, torch_video: torch.Tensor, tracker_results: InferenceResults) -> np.ndarray:
+    def _visualize_results(self, torch_video: torch.Tensor, tracker_results: dict) -> np.ndarray:
         """Visualizes the tracking results for a given video.
 
         Args:
@@ -86,8 +94,8 @@ class CoTrackerVisualizer(Template):
                 where C is the number of color channels (e.g., 3 for RGB).
         """
         preds, visibilities = (
-            tracker_results.tracks,
-            tracker_results.visibilities,
+            tracker_results["tracks"],
+            tracker_results["visibilities"],
         )
         output = self.visualizer.visualize(torch_video, preds, visibilities, save_video=False)
         output = output.squeeze(0).to(torch.uint8).permute(0, 2, 3, 1).cpu().numpy()
@@ -128,3 +136,21 @@ class CoTrackerVisualizer(Template):
         )
 
         return container
+
+    def reset_state(self, template_name: str | None = None) -> None:
+        """Releases the heavy resources from memory and re-instantiates the template.
+
+        Args:
+            template_name (str | None, optional): The name of the template instance being reset. Defaults to None.
+        """
+        _ = template_name
+
+        if hasattr(self, "visualizer") and self.visualizer is not None:
+            del self.visualizer
+
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        self.initialize()
+        self.logger.info(f"Reset template instance `{self.instance_name}`")

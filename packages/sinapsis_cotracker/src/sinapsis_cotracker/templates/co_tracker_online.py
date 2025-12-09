@@ -5,17 +5,18 @@ import numpy as np
 import torch
 from cotracker.predictor import CoTrackerOnlinePredictor
 from sinapsis_core.data_containers.data_packet import DataContainer
-from sinapsis_core.template_base.base_models import TemplateAttributeType
 
 from sinapsis_cotracker.templates.co_tracker_base import CoTrackerBase
 
 
 class CoTrackerOnline(CoTrackerBase):
-    """Online implementation of the Co-tracker model.
+    """Template for online, incremental pixel tracking using the CoTracker model.
 
-    This class extends the `CoTrackerBase` to provide online processing capabilities for
-    tracking points in video frames. It uses a sliding window or multi-window approach
-    to process video frames incrementally.
+    This template is designed for "generator" agent mode, meaning it processes video
+    as a stream of frames arriving over time. It is stateful, maintaining an
+    internal memory (buffer) of previous frames to ensure continuous and coherent
+    tracking between sequential executions. It is the ideal choice for real-time
+    applications or for processing video data in small, incremental chunks.
 
     Usage example:
 
@@ -41,7 +42,7 @@ class CoTrackerOnline(CoTrackerBase):
     _MODEL_TYPE = "online"
 
     class AttributesBaseModel(CoTrackerBase.AttributesBaseModel):
-        """Configuration attributes for the CoTrackerOnline.
+        """Configuration attributes for the CoTrackerOnline template.
 
         Attributes:
             grid_size (int): The size of the grid for sampling points. Default is 5.
@@ -54,13 +55,18 @@ class CoTrackerOnline(CoTrackerBase):
         grid_query_frame: int = 0
         add_support_grid: bool = False
 
-    def __init__(self, attributes: TemplateAttributeType) -> None:
-        super().__init__(attributes)
+    def initialize(self) -> None:
+        """Initializes the template's common state for creation or reset.
+        This method is called by both `__init__` and `reset_state` to ensure
+        a consistent state. Can be overriden by subclasses for specific behaviour.
+        """
+        super().initialize()
         self.cotracker = CoTrackerOnlinePredictor(self.checkpoint_path).to(self.attributes.device)
         self.is_first_step = True
         self.tracks: torch.Tensor | None = None
         self.visibilities: torch.Tensor | None = None
         self.buffer: deque[np.ndarray] = deque(maxlen=self.cotracker.step * 2)
+        self.previous_preds_count: int = 0
 
     def _split_into_chunks(self, frames: list[np.ndarray]) -> list[list[np.ndarray]]:
         """Splits the input frames into chunks based on the model type (scaled or baseline).
@@ -130,18 +136,32 @@ class CoTrackerOnline(CoTrackerBase):
             self.is_first_step = False
 
     def save_results(self, tracks: torch.Tensor, visibilities: torch.Tensor, container: DataContainer) -> None:
-        """Saves the tracking results to the provided `DataContainer`.
+        """Saves the tracking results (tracks and visibilities) to the provided `DataContainer`.
 
         Args:
+            tracks (torch.Tensor): The predicted tracks for the video frames. Shape: (B, T, N, 2),
+                where B is the batch size, T is the number of frames, and N is the number of points.
+            visibilities (torch.Tensor): The visibility flags for the tracks. Shape: (B, T, N),
+                where B is the batch size, T is the number of frames, and N is the number of points.
             container (DataContainer): The `DataContainer` where the results will be stored.
-            n_frames (int): The number of frames to include in the results.
         """
+        if tracks is None or visibilities is None:
+            return
+
         n_frames = len(container.images)
-        n_preds = tracks.shape[1] if tracks is not None else 0
-        if tracks is not None and visibilities is not None and n_preds >= n_frames:
-            last_tracks = tracks[:, -n_frames:, :, :]
-            last_visibilities = visibilities[:, -n_frames:, :]
-            super().save_results(last_tracks, last_visibilities, container)
+        start_index = self.previous_preds_count
+        end_index = start_index + n_frames
+
+        if tracks.shape[1] >= end_index:
+            final_tracks = tracks[:, start_index:end_index, :, :]
+            final_visibilities = visibilities[:, start_index:end_index, :]
+            super().save_results(final_tracks, final_visibilities, container)
+            self.previous_preds_count = tracks.shape[1]
+        else:
+            self.logger.warning(
+                f"Not enough predictions to save. Needed index up to {end_index}, "
+                f"but only {tracks.shape[1]} predictions are available."
+            )
 
     def execute(self, container: DataContainer) -> DataContainer:
         """Processes the input `DataContainer` and returns the updated container.
@@ -164,3 +184,13 @@ class CoTrackerOnline(CoTrackerBase):
         self.save_results(self.tracks, self.visibilities, container)
 
         return container
+
+    def _cleanup(self) -> None:
+        """Cleans up the inference-specific stateful objects.
+        This method moves the main cotracker model to the CPU to free up
+        VRAM and then deletes the references to it, preparing the template for
+        a full reset.
+        """
+        if hasattr(self, "cotracker") and self.cotracker is not None:
+            self.cotracker.to("cpu")
+            del self.cotracker

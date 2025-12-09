@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import gc
 import os
 from abc import abstractmethod
+from pathlib import Path
 from typing import Literal
 
 import numpy as np
@@ -8,7 +10,12 @@ import torch
 from pydantic import BaseModel, ConfigDict
 from sinapsis_core.data_containers.data_packet import DataContainer
 from sinapsis_core.template_base import Template
-from sinapsis_core.template_base.base_models import TemplateAttributes, TemplateAttributeType, UIPropertiesMetadata, OutputTypes
+from sinapsis_core.template_base.base_models import (
+    OutputTypes,
+    TemplateAttributes,
+    TemplateAttributeType,
+    UIPropertiesMetadata,
+)
 from sinapsis_core.utils.env_var_keys import SINAPSIS_CACHE_DIR
 
 from sinapsis_cotracker.helpers.file_downloader import download_file
@@ -55,7 +62,24 @@ class CoTrackerBase(Template):
 
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
+        self.initialize()
+
+    def initialize(self) -> None:
+        """Initializes the template's common state for creation or reset.
+        This method is called by both `__init__` and `reset_state` to ensure
+        a consistent state. Can be overriden by subclasses for specific behaviour.
+        """
+        self._create_cache_dir()
         self.checkpoint_path = self._download_model()
+
+    def _create_cache_dir(self) -> None:
+        """Creates the model cache directory if it doesn't exist."""
+        try:
+            folder_path = Path(self.attributes.model_cache_dir)
+            folder_path.mkdir(parents=True, exist_ok=True)
+        except OSError as e:
+            self.logger.error(f"Error creating cache directory '{folder_path}': {e}")
+            raise
 
     def _download_model(self) -> str:
         """Downloads the model checkpoint from Hugging Face and returns the local path.
@@ -101,7 +125,7 @@ class CoTrackerBase(Template):
             container (DataContainer): The `DataContainer` where the results will be stored.
         """
         results = InferenceResults(tracks=tracks.cpu(), visibilities=visibilities.cpu())
-        self._set_generic_data(container, results)
+        self._set_generic_data(container, results.model_dump())
 
     @abstractmethod
     def execute(self, container: DataContainer) -> DataContainer:
@@ -118,3 +142,24 @@ class CoTrackerBase(Template):
             DataContainer: The updated `DataContainer` with tracking results stored in the
                 `generic_data` field.
         """
+
+    @abstractmethod
+    def _cleanup(self) -> None:
+        """Subclasses must implement this to delete their specific heavy objects."""
+
+    def reset_state(self, template_name: str | None = None) -> None:
+        """Releases the heavy resources from memory and re-instantiates the template.
+
+        Args:
+            template_name (str | None, optional): The name of the template instance being reset. Defaults to None.
+        """
+        _ = template_name
+
+        self._cleanup()
+
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        self.initialize()
+        self.logger.info(f"Reset template instance `{self.instance_name}`")

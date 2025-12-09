@@ -5,20 +5,20 @@ import numpy as np
 import torch
 from cotracker.predictor import CoTrackerPredictor
 from sinapsis_core.data_containers.data_packet import DataContainer, ImagePacket
-from sinapsis_core.template_base.base_models import TemplateAttributeType
 
 from sinapsis_cotracker.templates.co_tracker_base import CoTrackerBase
 
 
 class CoTrackerOffline(CoTrackerBase):
-    """Template to perform offline pixel tracking for videos using Facebook Research's CoTracker model.
+    """Template for offline pixel tracking using the CoTracker model.
 
-    This template is designed for **offline tracking**, meaning it requires the full video (all frames)
-    as input before processing. It does not support real-time tracking or streaming input.
-
-    The template transforms the video into a PyTorch Tensor and applies the CoTracker model to extract
-    the tracks and visibilities of pixels throughout the entire sequence. The goal is to track the
-    movement of specific points across the frames.
+    This template is designed for "single" agent mode, meaning it requires the
+    full video as a single input before executing. It processes the entire sequence
+    at once to generate a complete set of tracks. As a batch process, it is
+    stateless and each execution is an independent job. It does not support
+    incremental or real-time streaming input. It's meant to be used for short
+    videos, as it's not efficient for longer videos and might cause out-of-memory
+    errors.
 
     Usage example:
 
@@ -59,8 +59,12 @@ class CoTrackerOffline(CoTrackerBase):
         grid_query_frame: int = 0
         backward_tracking: bool = False
 
-    def __init__(self, attributes: TemplateAttributeType) -> None:
-        super().__init__(attributes)
+    def initialize(self) -> None:
+        """Initializes the template's common state for creation or reset.
+        This method is called by both `__init__` and `reset_state` to ensure
+        a consistent state. Can be overriden by subclasses for specific behaviour.
+        """
+        super().initialize()
         self.cotracker = CoTrackerPredictor(self.checkpoint_path).to(self.attributes.device)
 
     def _inference(self, video: torch.Tensor, mask: torch.Tensor | None = None) -> tuple[torch.Tensor, torch.Tensor]:
@@ -131,3 +135,13 @@ class CoTrackerOffline(CoTrackerBase):
         self.save_results(tracks, visibilities, container)
 
         return container
+
+    def _cleanup(self) -> None:
+        """Cleans up the inference-specific stateful objects.
+        This method moves the main cotracker model to the CPU to free up
+        VRAM and then deletes the references to it, preparing the template for
+        a full reset.
+        """
+        if hasattr(self, "cotracker") and self.cotracker is not None:
+            self.cotracker.to("cpu")
+            del self.cotracker

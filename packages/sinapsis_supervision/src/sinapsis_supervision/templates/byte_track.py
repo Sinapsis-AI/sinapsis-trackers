@@ -8,7 +8,12 @@ import supervision as sv
 from sinapsis_core.data_containers.annotations import BoundingBox, ImageAnnotations, Segmentation
 from sinapsis_core.data_containers.data_packet import DataContainer, ImagePacket
 from sinapsis_core.template_base import Template
-from sinapsis_core.template_base.base_models import TemplateAttributes, TemplateAttributeType, UIPropertiesMetadata, OutputTypes
+from sinapsis_core.template_base.base_models import (
+    OutputTypes,
+    TemplateAttributes,
+    TemplateAttributeType,
+    UIPropertiesMetadata,
+)
 from sinapsis_data_visualization.helpers.detection_utils import bbox_xywh_to_xyxy, bbox_xyxy_to_xywh
 from supervision import Detections
 
