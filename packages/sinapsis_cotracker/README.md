@@ -56,7 +56,8 @@ pip install sinapsis-cotracker --extra-index-url https://pypi.sinapsis.tech
 
 The **Sinapsis CoTracker** module offers a set of templates for multi-object tracking and visualization using the **CoTracker** model. These templates enable users to perform both online and offline tracking, process video inputs, and visualize tracking results on video frames. The templates in this package include functionality for:
 
-- **CoTrackerOffline**: Handles offline multi-object tracking with customizable parameters for segmentation, grid size, and backward tracking.
+- **CoTrackerOffline**: Handles offline multi-object tracking for short videos. It loads the entire video into memory for processing and is the simplest method for offline tasks.
+- **CoTrackerOfflineLarge**: Provides offline tracking for long videos by using a memory-efficient, incremental engine.
 - **CoTrackerOnline**: Supports real-time object tracking with advanced grid query and support grid features.
 - **CoTrackerVisualizer**: Visualizes tracking results with customizable trace, line width, and visualization modes.
 

@@ -28,6 +28,7 @@ This mono repo consists of modular packages for implementing and visualizing mul
 
 * <code>sinapsis-cotracker</code>
 * <code>sinapsis-supervision</code>
+* <code>sinapsis-rf-trackers</code>
 
 Install using your package manager of choice. We encourage the use of <code>uv</code>
 
@@ -75,6 +76,22 @@ Install sinapsis-supervision
 pip install sinapsis-supervision --extra-index-url https://pypi.sinapsis.tech
 ```
 
+<h3>sinapsis-rf-trackers</h3>
+
+<h4> UV instructions</h4>
+
+Install sinapsis-rf-trackers
+```bash
+uv pip install sinapsis-rf-trackers --extra-index-url https://pypi.sinapsis.tech
+```
+
+<h4> Raw pip instructions</h4>
+
+Install sinapsis-rf-trackers
+```bash
+pip install sinapsis-rf-trackers --extra-index-url https://pypi.sinapsis.tech
+```
+
 <h3>(Optional) Install packages with all additional dependencies</h3>
 
 > [!IMPORTANT]
@@ -84,19 +101,23 @@ Templates in each package may require extra dependencies. For development, we re
   uv pip install sinapsis-cotracker[all] --extra-index-url https://pypi.sinapsis.tech
 
   uv pip install sinapsis-supervision[all] --extra-index-url https://pypi.sinapsis.tech
+
+  uv pip install sinapsis-rf-trackers[all] --extra-index-url https://pypi.sinapsis.tech
 ```
  or with raw <code>pip</code>:
 ```bash
   pip install sinapsis-cotracker[all] --extra-index-url https://pypi.sinapsis.tech
 
   pip install sinapsis-supervision[all] --extra-index-url https://pypi.sinapsis.tech
+
+  pip install sinapsis-rf-trackers[all] --extra-index-url https://pypi.sinapsis.tech
 ```
 
 > [!TIP]
 > You can also install all the packages within this project:
 
 ```bash
-  uv pip install sinapsis-tracker[all] --extra-index-url https://pypi.sinapsis.tech
+  uv pip install sinapsis-trackers[all] --extra-index-url https://pypi.sinapsis.tech
 ```
 
 <h2 id="packages">📦 Packages</h2>
@@ -126,6 +147,18 @@ This Sinapsis package provides a comprehensive solution for object tracking with
 
 For more details, see the [README.md](https://github.com/Sinapsis-AI/sinapsis-trackers/blob/main/packages/sinapsis_supervision/README.md).
 
+</details>
+<details>
+<summary id="uv"><strong><span style="font-size: 1.4em;">Sinapsis RF Trackers</span></strong></summary>
+
+This Sinapsis package provides robust templates for multi-object tracking, leveraging the trackers library. It integrates powerful algorithms like SORT and DeepSORT into the Sinapsis ecosystem.
+
+- SORT Tracker: A simple and efficient motion-based tracker ideal for high-speed applications.
+- DeepSORT Tracker: An advanced tracker that enhances SORT by incorporating appearance features using a configurable Re-Identification (Re-ID) model. This makes it more robust against occlusions and helps maintain object identities in complex scenes.
+- Flexible Configuration: Offers extensive attributes to fine-tune tracker behavior, including support for various Re-ID models via the timm library.
+
+
+For specific instructions and further details, see the [README.md](https://github.com/Sinapsis-AI/sinapsis-trackers/blob/main/packages/sinapsis_rf_trackers/README.md).
 </details>
 
 For more details, see the [official documentation](https://docs.sinapsis.tech/docs)
@@ -222,19 +255,19 @@ uv pip install sinapsis-trackers[all] --extra-index-url https://pypi.sinapsis.te
 
 3. **Run the webapp**:
 
-For demo running default [cotracker-online](https://github.com/sinapsis-ai/sinapsis-trackers/blob/fix-deps/packages/sinapsis_cotracker/src/sinapsis_cotracker/configs/cotracker_online.yml) agent config.
+For demo running default [cotracker-online](https://github.com/Sinapsis-AI/sinapsis-trackers/blob/main/packages/sinapsis_cotracker/src/sinapsis_cotracker/configs/cotracker_online.yml) agent config.
 
 ```bash
 uv run webapps/tracking_demo.py
 ```
 
-For demo running [bytrack-ultralytics](https://github.com/sinapsis-ai/sinapsis-trackers/blob/fix-deps/packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_ultralytics_demo.yml) agent config.
+For demo running [bytrack-ultralytics](https://github.com/Sinapsis-AI/sinapsis-trackers/blob/main/packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_ultralytics_demo.yml) agent config.
 ```bash
 export AGENT_CONFIG_PATH="packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_ultralytics_demo.yml"
 uv run webapps/tracking_demo.py
 ```
 
-For demo running [bytrack-dfine](https://github.com/sinapsis-ai/sinapsis-trackers/blob/fix-deps/packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_dfine_demo.yml) agent config.
+For demo running [bytetrack-dfine](https://github.com/Sinapsis-AI/sinapsis-trackers/blob/main/packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_dfine_demo.yml) agent config.
 ```bash
 export DFINE_CONFIG_DOWNLOAD=True
 export AGENT_CONFIG_PATH="packages/sinapsis_supervision/src/sinapsis_supervision/configs/bytetrack_dfine_demo.yml"

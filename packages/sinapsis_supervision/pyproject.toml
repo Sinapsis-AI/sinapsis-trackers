@@ -1,6 +1,6 @@
 [project]
 name = "sinapsis-supervision"
-version = "0.1.4"
+version = "0.1.6"
 description = " Templates for multi-object tracking using the ByteTrack algorithm"
 readme = "README.md"
 authors = [{ name = "SinapsisAI", email = "dev@sinapsis.tech" }]
@@ -15,7 +15,7 @@ dependencies = [
 
 [project.optional-dependencies]
 all = [
-    "sinapsis-supervision[gradio,sinapsis-data-readers,sinapsis-data-writers,sinapsis-dfine,sinapsis-ultralytics]",
+    "sinapsis-supervision[sinapsis-data-readers,sinapsis-data-writers,sinapsis-dfine,sinapsis-ultralytics]",
 ]
 sinapsis-ultralytics = [
     "sinapsis-ultralytics>=0.1.1",
@@ -28,9 +28,6 @@ sinapsis-data-readers = [
 ]
 sinapsis-data-writers = [
     "sinapsis-data-writers>=0.1.1",
-]
-sinapsis-define = [
-    "sinapsis-dfine[training]>=0.1.3",
 ]
 
 

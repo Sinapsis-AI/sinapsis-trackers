@@ -1,6 +1,6 @@
 [project]
 name = "sinapsis-trackers"
-version = "0.1.4"
+version = "0.1.9"
 description = "Package for multi-object tracking using advanced algorithms and models."
 authors = [{ name = "SinapsisAI", email = "dev@sinapsis.tech" }]
 readme = "README.md"
@@ -17,6 +17,7 @@ gradio-app = [
 all = [
     "sinapsis-cotracker[all]",
     "sinapsis-supervision[all]",
+    "sinapsis-rf-trackers[all]",
     "sinapsis-trackers[cotracker,gradio-app]",
 ]
 cotracker = [
@@ -68,8 +69,8 @@ url = "https://pypi.sinapsis.tech/"
 [tool.uv.sources]
 sinapsis-supervision = { workspace = true }
 sinapsis-cotracker = { workspace = true }
+sinapsis-rf-trackers = { workspace = true }
 cotracker = { git = "https://github.com/facebookresearch/co-tracker.git" }
-sinapsis-trackers = { workspace = true }
 
 [project.urls]
 Homepage = "https://sinapsis.tech"
