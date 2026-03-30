@@ -1,0 +1,53 @@
+agent:
+  name: sort_tracker_agent
+  description: "Agent to perform SORT tracking using Ultralytics YOLO model as detector"
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name: VideoReaderCV2
+    class_name: VideoReaderCV2
+    template_input: InputTemplate
+    attributes:
+      video_file_path: "artifacts/palace.mp4"
+      batch_size: -1
+
+  - template_name: UltralyticsPredict
+    class_name: UltralyticsPredict
+    template_input: VideoReaderCV2
+    attributes:
+      model_class: YOLO
+      model: yolo11n.pt
+      task: detect
+      prediction_params:
+        conf: 0.7
+        iou: 0.8
+
+  - template_name: SORTTrackerInference
+    class_name: SORTTrackerInference
+    template_input: UltralyticsPredict
+    attributes:
+      lost_track_buffer: 30
+      track_activation_threshold: 0.25
+      minimum_consecutive_frames: 1
+      minimum_iou_threshold: 0.3
+      frame_rate: 30
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: SORTTrackerInference
+    attributes:
+      overwrite: true
+      randomized_color: false
+      draw_extra_labels: true
+
+  - template_name: VideoWriterCV2
+    class_name: VideoWriterCV2
+    template_input: BBoxDrawer
+    attributes:
+      destination_path: "artifacts/sort_result.mp4"
+      height: -1
+      width: -1
+      fps: 30

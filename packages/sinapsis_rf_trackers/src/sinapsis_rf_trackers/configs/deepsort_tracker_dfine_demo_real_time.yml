@@ -1,0 +1,43 @@
+agent:
+  name: deepsort_tracker_agent
+  description: "DeepSORT tracking with DFINE detector"
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name: DFINEInference
+    class_name: DFINEInference
+    template_input: InputTemplate
+    attributes:
+      threshold: 0.5
+      config_file: artifacts/configs/dfine/dfine_hgnetv2_n_coco.yml
+      device: cuda
+      pretrained_model:
+        size: n
+        variant: coco
+
+  - template_name: DeepSORTTrackerInference
+    class_name: DeepSORTTrackerInference
+    template_input: DFINEInference
+    attributes:
+      lost_track_buffer: 30
+      track_activation_threshold: 0.25
+      minimum_consecutive_frames: 1
+      minimum_iou_threshold: 0.3
+      frame_rate: 30
+      appearance_threshold: 0.7
+      appearance_weight: 0.5
+      distance_metric: "cosine"
+      reid_model_name: tf_efficientnet_b1.in1k
+      reid_device: cuda
+      reid_get_pooled_features: true
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: DeepSORTTrackerInference
+    attributes:
+      overwrite: true
+      randomized_color: false
+      draw_extra_labels: true

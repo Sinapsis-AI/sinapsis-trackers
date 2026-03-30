@@ -1,0 +1,37 @@
+agent:
+  name: sort_tracker_agent
+  description: "SORT tracking with Ultralytics detector"
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name: UltralyticsPredict
+    class_name: UltralyticsPredict
+    template_input: InputTemplate
+    attributes:
+      model_class: YOLO
+      model: yolo11n.pt
+      task: detect
+      prediction_params:
+        conf: 0.7
+        iou: 0.8
+
+  - template_name: SORTTrackerInference
+    class_name: SORTTrackerInference
+    template_input: UltralyticsPredict
+    attributes:
+      lost_track_buffer: 30
+      track_activation_threshold: 0.25
+      minimum_consecutive_frames: 1
+      minimum_iou_threshold: 0.3
+      frame_rate: 30
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: SORTTrackerInference
+    attributes:
+      overwrite: true
+      randomized_color: false
+      draw_extra_labels: true

@@ -1,0 +1,43 @@
+agent:
+  name: deepsort_tracker_agent
+  description: "DeepSORT tracking with Ultralytics detector"
+
+templates:
+  - template_name: InputTemplate
+    class_name: InputTemplate
+    attributes: {}
+
+  - template_name: UltralyticsPredict
+    class_name: UltralyticsPredict
+    template_input: InputTemplate
+    attributes:
+      model_class: YOLO
+      model: yolo11n.pt
+      task: detect
+      prediction_params:
+        conf: 0.7
+        iou: 0.8
+
+  - template_name: DeepSORTTrackerInference
+    class_name: DeepSORTTrackerInference
+    template_input: UltralyticsPredict
+    attributes:
+      lost_track_buffer: 30
+      track_activation_threshold: 0.25
+      minimum_consecutive_frames: 1
+      minimum_iou_threshold: 0.3
+      frame_rate: 30
+      appearance_threshold: 0.7
+      appearance_weight: 0.5
+      distance_metric: "cosine"
+      reid_model_name: beitv2_large_patch16_224.in1k_ft_in22k
+      reid_device: cuda
+      reid_get_pooled_features: true
+
+  - template_name: BBoxDrawer
+    class_name: BBoxDrawer
+    template_input: DeepSORTTrackerInference
+    attributes:
+      overwrite: true
+      randomized_color: false
+      draw_extra_labels: true
