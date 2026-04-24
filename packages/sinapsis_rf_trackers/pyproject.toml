@@ -1,6 +1,6 @@
 [project]
 name = "sinapsis-rf-trackers"
-version = "0.1.4"
+version = "0.1.5"
 description = "Multi-object tracking templates using SORT and DeepSORT algorithms"
 readme = "README.md"
 license-files = ["LICENSE"]
