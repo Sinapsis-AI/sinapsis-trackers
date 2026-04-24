@@ -50,11 +50,11 @@ class ByteTrackAttrs(TemplateAttributes):
 class DetectionKWArgs(Enum):
     """Key word arguments for constructing Detections object"""
 
-    xyxy: str = "xyxy"
-    confidence: str = "confidence"
-    class_id: str = "class_id"
-    class_names: str = "class_names"
-    mask: str = "mask"
+    xyxy = "xyxy"
+    confidence = "confidence"
+    class_id = "class_id"
+    class_names = "class_names"
+    mask = "mask"
 
 
 class ByteTrack(Template):
@@ -86,6 +86,7 @@ class ByteTrack(Template):
 
     AttributesBaseModel = ByteTrackAttrs
     UIProperties = UIPropertiesMetadata(category="ByteTrack", output_type=OutputTypes.IMAGE)
+    attributes: ByteTrackAttrs
 
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
@@ -93,7 +94,7 @@ class ByteTrack(Template):
             track_activation_threshold=self.attributes.track_activation_threshold,
             lost_track_buffer=self.attributes.lost_track_buffer,
             minimum_matching_threshold=self.attributes.minimum_matching_threshold,
-            frame_rate=self.attributes.frame_rate,
+            frame_rate=int(self.attributes.frame_rate),
             minimum_consecutive_frames=self.attributes.minimum_consecutive_frames,
         )
 
@@ -155,12 +156,13 @@ class ByteTrack(Template):
             else:
                 new_detections_args[key] = np.array(annotations_dict[key])
 
+        new_data = {DetectionKWArgs.class_names.value: new_detections_args[DetectionKWArgs.class_names.value]}
         detections = Detections(
-            xyxy=new_detections_args[DetectionKWArgs.xyxy.value],
+            xyxy=new_detections_args[DetectionKWArgs.xyxy.value],  # ty: ignore[invalid-argument-type]
             confidence=new_detections_args[DetectionKWArgs.confidence.value],
             class_id=new_detections_args[DetectionKWArgs.class_id.value],
             mask=new_detections_args[DetectionKWArgs.mask.value],
-            data={DetectionKWArgs.class_names.value: new_detections_args[DetectionKWArgs.class_names.value]},
+            data=new_data,  # ty: ignore[invalid-argument-type]
         )
         return detections
 
@@ -180,8 +182,11 @@ class ByteTrack(Template):
         class_names = detections.data.get(DetectionKWArgs.class_names.value, [])
         tracker_ids = detections.tracker_id
         for class_id, xyxy, class_name, tracker_id in zip(
-            detections.class_id, detections.xyxy, class_names, tracker_ids
-        ):
+            detections.class_id,  # ty: ignore[invalid-argument-type]
+            detections.xyxy,
+            class_names,
+            tracker_ids,  # ty: ignore[invalid-argument-type]
+        ):  # ty: ignore[not-iterable]
             x, y, w, h = bbox_xyxy_to_xywh(xyxy)
             ann = ImageAnnotations(
                 label=class_id,

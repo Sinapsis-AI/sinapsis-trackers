@@ -46,6 +46,8 @@ class CoTrackerOfflineLarge(CoTrackerOnline):
 
         reset_after_execution: bool = True
 
+    attributes: AttributesBaseModel
+
     def save_results(self, tracks: torch.Tensor, visibilities: torch.Tensor, container: DataContainer) -> None:
         """Saves the tracking results (tracks and visibilities) to the provided `DataContainer`.
 

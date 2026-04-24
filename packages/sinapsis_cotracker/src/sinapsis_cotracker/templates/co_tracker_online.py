@@ -55,6 +55,8 @@ class CoTrackerOnline(CoTrackerBase):
         grid_query_frame: int = 0
         add_support_grid: bool = False
 
+    attributes: AttributesBaseModel
+
     def initialize(self) -> None:
         """Initializes the template's common state for creation or reset.
         This method is called by both `__init__` and `reset_state` to ensure
@@ -68,7 +70,7 @@ class CoTrackerOnline(CoTrackerBase):
         self.buffer: deque[np.ndarray] = deque(maxlen=self.cotracker.step * 2)
         self.previous_preds_count: int = 0
 
-    def _split_into_chunks(self, frames: list[np.ndarray]) -> list[list[np.ndarray]]:
+    def _split_into_chunks(self, frames: np.ndarray) -> list[list[np.ndarray]]:
         """Splits the input frames into chunks based on the model type (scaled or baseline).
 
         Args:
@@ -145,9 +147,6 @@ class CoTrackerOnline(CoTrackerBase):
                 where B is the batch size, T is the number of frames, and N is the number of points.
             container (DataContainer): The `DataContainer` where the results will be stored.
         """
-        if tracks is None or visibilities is None:
-            return
-
         n_frames = len(container.images)
         start_index = self.previous_preds_count
         end_index = start_index + n_frames
@@ -181,7 +180,8 @@ class CoTrackerOnline(CoTrackerBase):
         frames = np.asarray([image.content for image in image_packets])
         frames_chunks = self._split_into_chunks(frames)
         self._inference(frames_chunks)
-        self.save_results(self.tracks, self.visibilities, container)
+        if self.tracks is not None and self.visibilities is not None:
+            self.save_results(self.tracks, self.visibilities, container)
 
         return container
 

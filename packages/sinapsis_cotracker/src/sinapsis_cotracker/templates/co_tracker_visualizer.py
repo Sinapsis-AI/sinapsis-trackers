@@ -63,6 +63,8 @@ class CoTrackerVisualizer(Template):
         overwrite: bool = False
         generic_key_field: str
 
+    attributes: AttributesBaseModel
+
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
         self.initialize()

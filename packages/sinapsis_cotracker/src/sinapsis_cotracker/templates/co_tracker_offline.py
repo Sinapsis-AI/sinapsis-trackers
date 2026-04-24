@@ -59,6 +59,8 @@ class CoTrackerOffline(CoTrackerBase):
         grid_query_frame: int = 0
         backward_tracking: bool = False
 
+    attributes: AttributesBaseModel
+
     def initialize(self) -> None:
         """Initializes the template's common state for creation or reset.
         This method is called by both `__init__` and `reset_state` to ensure

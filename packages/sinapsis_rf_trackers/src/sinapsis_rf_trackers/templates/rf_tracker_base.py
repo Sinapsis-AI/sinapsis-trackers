@@ -73,6 +73,7 @@ class RFTrackerBase(Template):
         output_type=OutputTypes.IMAGE,
         tags=[Tags.TRACKERS, Tags.IMAGE, Tags.INFERENCE, Tags.MODELS, Tags.OBJECT_TRACKING],
     )
+    attributes: RFTrackerBaseAttrs
 
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
@@ -139,7 +140,7 @@ class RFTrackerBase(Template):
         Returns:
             A supervision.Detections object containing all detection information.
         """
-        detection_args: dict[str, np.ndarray] = {}
+        detection_args: dict[str, np.ndarray | dict] = {}
         for key, value in annotations_dict.items():
             if value:
                 detection_args[key] = np.array(value)
@@ -148,7 +149,7 @@ class RFTrackerBase(Template):
             class_names = detection_args.pop(DetectionKWArgs.class_names.value)
             detection_args[DetectionKWArgs.data.value] = {DetectionKWArgs.class_names.value: class_names}
 
-        return sv.Detections(**detection_args)
+        return sv.Detections(**detection_args)  # ty: ignore[invalid-argument-type]
 
     def _detections_to_annotations(self, detections: sv.Detections) -> list[ImageAnnotations]:
         """
@@ -164,9 +165,13 @@ class RFTrackerBase(Template):
         annotations: list[ImageAnnotations] = []
         class_names = detections.data.get(DetectionKWArgs.class_names.value, [None] * len(detections))
 
-        for idx, (bbox, confidence, class_id, tracker_id) in enumerate(
-            zip(detections.xyxy, detections.confidence, detections.class_id, detections.tracker_id)
-        ):
+        dets = zip(
+            detections.xyxy,
+            detections.confidence,  # ty: ignore[invalid-argument-type]
+            detections.class_id,  # ty: ignore[invalid-argument-type]
+            detections.tracker_id,  # ty: ignore[invalid-argument-type]
+        )
+        for idx, (bbox, confidence, class_id, tracker_id) in enumerate(dets):  # ty: ignore[not-iterable]
             x, y, w, h = bbox_xyxy_to_xywh(bbox)
             ann = ImageAnnotations(
                 label=class_id,

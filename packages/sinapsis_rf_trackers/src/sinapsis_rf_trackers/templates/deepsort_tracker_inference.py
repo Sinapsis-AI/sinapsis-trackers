@@ -95,6 +95,7 @@ class DeepSORTTrackerInference(RFTrackerBase):
     """
 
     AttributesBaseModel = DeepSORTTrackerAttrs
+    attributes: DeepSORTTrackerAttrs
 
     def _init_reid_model(self) -> ReIDModel:
         """Initialize the Re-Identification model for appearance-based tracking.

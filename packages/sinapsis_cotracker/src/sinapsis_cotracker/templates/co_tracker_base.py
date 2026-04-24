@@ -60,6 +60,8 @@ class CoTrackerBase(Template):
         model_cache_dir: str = SINAPSIS_CACHE_DIR
         model_variant: Literal["baseline", "scaled"]
 
+    attributes: AttributesBaseModel
+
     def __init__(self, attributes: TemplateAttributeType) -> None:
         super().__init__(attributes)
         self.initialize()
