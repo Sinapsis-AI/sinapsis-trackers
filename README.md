@@ -1,3 +1,4 @@
+[![sp](https://img.shields.io/badge/lang-sp-red.svg)](https://github.com/Corteza-ai/sinapsis-trackers/blob/UAIS-792-spanish-readme/README.es.md)
 <h1 align="center">
 <br>
 <br>
