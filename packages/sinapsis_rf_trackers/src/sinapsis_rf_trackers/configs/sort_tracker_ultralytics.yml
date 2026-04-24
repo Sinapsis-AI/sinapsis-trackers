@@ -11,6 +11,7 @@ templates:
     class_name: VideoReaderCV2
     template_input: InputTemplate
     attributes:
+      root_dir: "."
       video_file_path: "artifacts/palace.mp4"
       batch_size: -1
 
@@ -47,6 +48,7 @@ templates:
     class_name: VideoWriterCV2
     template_input: BBoxDrawer
     attributes:
+      root_dir: "."
       destination_path: "artifacts/sort_result.mp4"
       height: -1
       width: -1

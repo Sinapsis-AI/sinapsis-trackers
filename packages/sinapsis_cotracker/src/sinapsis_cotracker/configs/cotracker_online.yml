@@ -13,6 +13,7 @@ templates:
     class_name: VideoReaderCV2
     template_input: InputTemplate
     attributes:
+      root_dir: "."
       video_file_path : "artifacts/apple.mp4"
       batch_size: 32
 
@@ -37,7 +38,8 @@ templates:
     class_name: VideoWriterCV2
     template_input: CoTrackerVisualizer
     attributes:
+      root_dir: "."
       destination_path: "artifacts/result.mp4"
       height: -1
       width: -1
-      fps: 30
+      fps: 10
